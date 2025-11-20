@@ -15,7 +15,8 @@ COPY src ./src
 RUN mvn clean package -DskipTests
 
 # Segunda etapa: ejecutamos el JAR
-FROM eclipse-temurin:20-jdk-alpine
+FROM maven:3.9.5-jdk-20
+
 
 WORKDIR /app
 
