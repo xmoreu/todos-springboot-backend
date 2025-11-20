@@ -1,14 +1,30 @@
-# Usa la imagen base de Java 25
-FROM eclipse-temurin:25-jdk-alpine
+# Usamos la imagen oficial de Maven para compilar
+FROM maven:3.9.5-eclipse-temurin-20 AS build
 
-# Directorio de la app dentro del contenedor
+# Carpeta de trabajo
 WORKDIR /app
 
-# Copia el JAR desde tu target
-COPY target/backend-0.0.1-SNAPSHOT.jar app.jar
+# Copiamos el pom y descargamos dependencias primero (para cache)
+COPY pom.xml .
+RUN mvn dependency:go-offline
 
-# Expone el puerto (igual que en application.properties)
+# Copiamos el resto del proyecto
+COPY src ./src
+
+# Compilamos el proyecto y generamos el JAR
+RUN mvn clean package -DskipTests
+
+# Segunda etapa: ejecutamos el JAR
+FROM eclipse-temurin:20-jdk-alpine
+
+WORKDIR /app
+
+# Copiamos el JAR compilado desde la etapa build
+COPY --from=build /app/target/*.jar app.jar
+
+# Exponemos puerto
 EXPOSE 8080
 
-# Comando para ejecutar la app
+# Comando para ejecutar el JAR
 ENTRYPOINT ["java","-jar","app.jar"]
+
