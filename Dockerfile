@@ -15,7 +15,7 @@ COPY src ./src
 RUN mvn clean package -DskipTests
 
 # Segunda etapa: ejecutamos el JAR
-FROM maven:3.9.5-jdk-20
+FROM maven:3.9.5
 
 
 WORKDIR /app
